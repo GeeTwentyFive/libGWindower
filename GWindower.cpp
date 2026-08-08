@@ -16,15 +16,15 @@
 #define ERROR(msg) throw std::runtime_error(std::string("[ERROR] ") + __FILE__ + "@" + std::to_string(__LINE__) + " (" + __func__ + "): " + (msg))
 
 
-inline int GWindower::GetScreenWidth() {
+int GWindower::GetScreenWidth() {
         const GLFWvidmode* video_mode = glfwGetVideoMode(glfwGetPrimaryMonitor()); if (video_mode == NULL) ERROR("Failed to get primary monitor's video mode");
         return video_mode->width;
 }
-inline int GWindower::GetScreenHeight() {
+int GWindower::GetScreenHeight() {
         const GLFWvidmode* video_mode = glfwGetVideoMode(glfwGetPrimaryMonitor()); if (video_mode == NULL) ERROR("Failed to get primary monitor's video mode");
         return video_mode->height;
 }
-inline int GWindower::GetScreenRefreshRate() {
+int GWindower::GetScreenRefreshRate() {
         const GLFWvidmode* video_mode = glfwGetVideoMode(glfwGetPrimaryMonitor()); if (video_mode == NULL) ERROR("Failed to get primary monitor's video mode");
         return video_mode->refreshRate;
 }

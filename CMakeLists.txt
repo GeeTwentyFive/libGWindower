@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.30...4.4)
 project(GWindower)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(GWINDOWER_BUILD_EXAMPLE "Build example program" ON)
+
 add_library(${PROJECT_NAME}
 	"GWindower.cpp"
 )
@@ -16,3 +18,7 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(GLFW_LIBRARY_TYPE "OBJECT" CACHE STRING "" FORCE)
 add_subdirectory("libs/glfw")
 target_link_libraries(${PROJECT_NAME} glfw)
+
+if (GWINDOWER_BUILD_EXAMPLE)
+        add_subdirectory(_EXAMPLE)
+endif()
