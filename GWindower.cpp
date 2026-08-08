@@ -61,11 +61,11 @@ GWindower::GWindower(
 
         if (opengl) { glfwMakeContextCurrent((GLFWwindow*)_glfwWindow); }
 
-        memset(GWindower::key_states, false, (sizeof(GWindower::key_states) / sizeof(GWindower::key_states[0])));
-        GWindower::mouse_x = 0; GWindower::mouse_y = 0;
-        memset(GWindower::mouse_button_states, false, (sizeof(GWindower::mouse_button_states) / sizeof(GWindower::mouse_button_states[0])));
-        memset(GWindower::gamepad_button_states, false, (sizeof(GWindower::gamepad_button_states) / sizeof(GWindower::gamepad_button_states[0])));
-        memset(GWindower::gamepad_axes, 0.0, (sizeof(GWindower::gamepad_axes) / sizeof(GWindower::gamepad_axes[0])));
+        memset(key_states, false, (sizeof(key_states) / sizeof(key_states[0])));
+        mouse_x = 0; mouse_y = 0;
+        memset(mouse_button_states, false, (sizeof(mouse_button_states) / sizeof(mouse_button_states[0])));
+        memset(gamepad_button_states, false, (sizeof(gamepad_button_states) / sizeof(gamepad_button_states[0])));
+        memset(gamepad_axes, 0.0, (sizeof(gamepad_axes) / sizeof(gamepad_axes[0])));
 
         if (fullscreen) {
                 glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -82,15 +82,32 @@ GWindower::GWindower(
 }
 
 bool GWindower::Update(
-        bool vsync,
-        bool sleep_until_input, double sleep_until_input_timeout
+        bool sleep_until_input, double sleep_until_input_timeout,
+        bool opengl_vsync
 ) noexcept {
-        glfwSwapInterval(vsync);
-        glfwSwapBuffers((GLFWwindow*)_glfwWindow);
+        if (opengl) { glfwSwapInterval(opengl_vsync); glfwSwapBuffers((GLFWwindow*)_glfwWindow); }
 
-        // TODO
+        if (sleep_until_input) {
+                if (sleep_until_input_timeout != 0.0) { glfwWaitEventsTimeout(sleep_until_input_timeout); }
+                else { glfwWaitEvents(); }
+        }
+        else { glfwPollEvents(); }
+
+        double xpos = 0, ypos = 0;
+        glfwGetCursorPos((GLFWwindow*)_glfwWindow, &xpos, &ypos);
+        this->mouse_x = (int)xpos; this->mouse_y = (int)ypos;
+        if (fullscreen) { glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0); }  // so there is zero precision loss going from doubles to ints
+
+        for (int j = 0; j < GLFW_JOYSTICK_LAST; j++) {
+                if (!glfwJoystickIsGamepad(j)) continue;
+                GLFWgamepadstate gamepad_state;
+                if (!glfwGetGamepadState(j, &gamepad_state)) continue;
+                for (int b = 0; b < GLFW_GAMEPAD_BUTTON_LAST; b++) { gamepad_button_states[b] = (gamepad_state.buttons[b] != GLFW_RELEASE); }
+                for (int a = 0; a < GLFW_GAMEPAD_AXIS_LAST; a++) { gamepad_axes[a] = gamepad_state.axes[a]; }
+                break;
+        }
 
         return !glfwWindowShouldClose((GLFWwindow*)_glfwWindow);
 }
 
-GWindower::~GWindower() {} // TODO
+GWindower::~GWindower() { glfwTerminate(); }

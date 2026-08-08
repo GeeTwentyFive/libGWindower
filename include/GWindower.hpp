@@ -18,8 +18,8 @@ class GWindower { private: bool fullscreen; bool opengl; public: ~GWindower(); v
         float gamepad_axes[6];  // GWindower::GamepadAxis
         int window_width, window_height;  // size of window's non-decorated drawing/framebuffer area
         bool Update(  // returns `false` if window should close
-                bool vsync = false,
-                bool sleep_until_input = false, double sleep_until_input_timeout = 0.0
+                bool sleep_until_input = false, double sleep_until_input_timeout = 0.0,
+                bool opengl_vsync = false
         ) noexcept;
 
 
