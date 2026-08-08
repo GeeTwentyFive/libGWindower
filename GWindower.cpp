@@ -64,6 +64,7 @@ GWindower::GWindower(
         memset(key_states, false, (sizeof(key_states) / sizeof(key_states[0])));
         mouse_x = 0; mouse_y = 0;
         memset(mouse_button_states, false, (sizeof(mouse_button_states) / sizeof(mouse_button_states[0])));
+        mouse_scroll_delta = 0.0;
         memset(gamepad_button_states, false, (sizeof(gamepad_button_states) / sizeof(gamepad_button_states[0])));
         memset(gamepad_axes, 0.0, (sizeof(gamepad_axes) / sizeof(gamepad_axes[0])));
 
@@ -79,6 +80,11 @@ GWindower::GWindower(
         glfwSetMouseButtonCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int button, int action, int mods){
                 ((GWindower*)glfwGetWindowUserPointer(window))->mouse_button_states[button] = (action != GLFW_RELEASE);
         });
+
+        glfwSetScrollCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, double xoffset, double yoffset){
+                ((GWindower*)glfwGetWindowUserPointer(window))->mouse_scroll_delta = yoffset;
+                ((GWindower*)glfwGetWindowUserPointer(window))->_scrolled = true;
+        });
 }
 
 bool GWindower::Update(
@@ -86,6 +92,8 @@ bool GWindower::Update(
         bool opengl_vsync
 ) noexcept {
         if (opengl) { glfwSwapInterval(opengl_vsync); glfwSwapBuffers((GLFWwindow*)_glfwWindow); }
+
+        if (_scrolled) { _scrolled = false; mouse_scroll_delta = 0.0; }  // prevent scroll data from "sticking"
 
         if (sleep_until_input) {
                 if (sleep_until_input_timeout != 0.0) { glfwWaitEventsTimeout(sleep_until_input_timeout); }
