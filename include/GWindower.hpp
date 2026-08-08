@@ -1,13 +1,27 @@
 #pragma once
 
-class GWindower { public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
-        // TODO
+class GWindower { private: bool fullscreen; bool opengl; public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
+        static inline int GetScreenWidth(); static inline int GetScreenHeight();
+        static inline int GetScreenRefreshRate();
+
+        void* native_window_handle; // Win32 HWND / Wayland wl_surface*
+        void* native_wayland_display = nullptr;  // NULL on Windows
         GWindower(
                 int window_width = 0, int window_height = 0,  // leave both at 0 for fullscreen
                 int opengl_context_major = 0, int opengl_context_minor = 0  // leave both at 0 for no OpenGL context
         );
 
-        // TODO
+        bool key_states[349];  // GWindower::Key - `true` = pressed
+        int mouse_x, mouse_y;  // delta in fullscreen, absolute in windowed
+        bool mouse_button_states[8];  // GWindower::MouseButton - `true` = pressed
+        bool gamepad_button_states[15];  // GWindower::GamepadButton - `true` = pressed
+        float gamepad_axis_states[6];  // GWindower::GamepadAxis
+        int window_width, window_height;  // size of window's non-decorated drawing/framebuffer area
+        bool Update(  // returns `false` if window should close
+                bool vsync = false,
+                bool sleep_until_input = false, double sleep_until_input_timeout = 0.0
+        ) noexcept;
+
 
         // Inputs
 
@@ -170,7 +184,6 @@ class GWindower { public: ~GWindower(); void* _glfwWindow;  // for interoperabil
                 SQUARE = X,
                 TRIANGLE = Y
         };
-
         enum class GamepadAxis {
                 LEFT_X,
                 LEFT_Y,
