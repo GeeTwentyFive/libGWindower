@@ -15,7 +15,7 @@ class GWindower { private: bool fullscreen; bool opengl; public: ~GWindower(); v
         int mouse_x, mouse_y;  // delta in fullscreen, absolute in windowed
         bool mouse_button_states[8];  // GWindower::MouseButton - `true` = pressed
         bool gamepad_button_states[15];  // GWindower::GamepadButton - `true` = pressed
-        float gamepad_axis_states[6];  // GWindower::GamepadAxis
+        float gamepad_axes[6];  // GWindower::GamepadAxis
         int window_width, window_height;  // size of window's non-decorated drawing/framebuffer area
         bool Update(  // returns `false` if window should close
                 bool vsync = false,

@@ -50,14 +50,47 @@ GWindower::GWindower(
         else { _glfwWindow = glfwCreateWindow(window_width, window_height, "", NULL, NULL); }
         if (_glfwWindow == NULL) ERROR(std::string("Failed to create window") + " (GLFW error code: " + std::to_string(glfwGetError(NULL)) + ")");
 
-        // TODO
+        glfwSetWindowUserPointer((GLFWwindow*)_glfwWindow, this);
+
+        #ifdef _WIN32
+                this->native_window_handle = (void*)glfwGetWin32Window((GLFWwindow*)_glfwWindow); if (this->native_window_handle == NULL) ERROR("Failed to get native window handle (Win32 HWND)");
+        #else
+                this->native_window_handle = (void*)glfwGetWaylandWindow((GLFWwindow*)_glfwWindow); if (this->native_window_handle == NULL) ERROR("Failed to get native window handle (Wayland wl_surface*)");
+                this->native_wayland_display = (void*)glfwGetWaylandDisplay(); if (this->native_wayland_display == NULL) ERROR("Failed to get native wl_display*");
+        #endif
+
+        if (opengl) { glfwMakeContextCurrent((GLFWwindow*)_glfwWindow); }
+
+        memset(GWindower::key_states, false, (sizeof(GWindower::key_states) / sizeof(GWindower::key_states[0])));
+        GWindower::mouse_x = 0; GWindower::mouse_y = 0;
+        memset(GWindower::mouse_button_states, false, (sizeof(GWindower::mouse_button_states) / sizeof(GWindower::mouse_button_states[0])));
+        memset(GWindower::gamepad_button_states, false, (sizeof(GWindower::gamepad_button_states) / sizeof(GWindower::gamepad_button_states[0])));
+        memset(GWindower::gamepad_axes, 0.0, (sizeof(GWindower::gamepad_axes) / sizeof(GWindower::gamepad_axes[0])));
+
+        if (fullscreen) {
+                glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        }
+
+        glfwSetKeyCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods){
+                ((GWindower*)glfwGetWindowUserPointer(window))->key_states[key] = (action != GLFW_RELEASE);
+        });
+
+        glfwSetMouseButtonCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int button, int action, int mods){
+                ((GWindower*)glfwGetWindowUserPointer(window))->mouse_button_states[button] = (action != GLFW_RELEASE);
+        });
 }
 
 bool GWindower::Update(
         bool vsync,
         bool sleep_until_input, double sleep_until_input_timeout
 ) noexcept {
+        glfwSwapInterval(vsync);
+        glfwSwapBuffers((GLFWwindow*)_glfwWindow);
+
         // TODO
+
+        return !glfwWindowShouldClose((GLFWwindow*)_glfwWindow);
 }
 
 GWindower::~GWindower() {} // TODO
