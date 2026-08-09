@@ -91,6 +91,8 @@ bool GWindower::Update(
         bool sleep_until_input, double sleep_until_input_timeout,
         bool opengl_vsync
 ) noexcept {
+        glfwGetFramebufferSize((GLFWwindow*)_glfwWindow, &window_width, &window_height);
+
         if (opengl) { glfwSwapInterval(opengl_vsync); glfwSwapBuffers((GLFWwindow*)_glfwWindow); }
 
         if (_scrolled) { _scrolled = false; mouse_scroll_delta = 0.0; }  // prevent scroll data from "sticking"
