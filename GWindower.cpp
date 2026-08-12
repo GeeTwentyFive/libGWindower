@@ -72,11 +72,6 @@ GWindower::GWindower(
         else locked_mouse = false;
         _last_mouse_lock_state = locked_mouse;
 
-        if (fullscreen) { ////
-                glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-        }
-
         glfwSetKeyCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods){
                 ((GWindower*)glfwGetWindowUserPointer(window))->key_states[key] = (action != GLFW_RELEASE);
         });
@@ -101,13 +96,6 @@ bool GWindower::Update(
 
         if (_scrolled) { _scrolled = false; mouse_scroll_delta = 0.0; }  // prevent scroll data from "sticking"
 
-        if (_last_mouse_lock_state != locked_mouse) { _last_mouse_lock_state = locked_mouse;
-                if (locked_mouse) { mouse_x = 0; mouse_y = 0;  // (to prevent jerking/snapping)
-                        glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-                }
-                else { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
-        }
-
         if (sleep_until_input) {
                 if (sleep_until_input_timeout != 0.0) { glfwWaitEventsTimeout(sleep_until_input_timeout); }
                 else { glfwWaitEvents(); }
@@ -117,7 +105,14 @@ bool GWindower::Update(
         double xpos = 0, ypos = 0;
         glfwGetCursorPos((GLFWwindow*)_glfwWindow, &xpos, &ypos);
         this->mouse_x = (int)xpos; this->mouse_y = (int)ypos;
-        if (fullscreen) { glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0); }  // so there is zero precision loss going from doubles to ints
+        if (locked_mouse) { glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0); }  // so there is zero precision loss going from doubles to ints
+
+        if (_last_mouse_lock_state != locked_mouse) { _last_mouse_lock_state = locked_mouse;
+                if (locked_mouse) { mouse_x = 0; mouse_y = 0;  // (to prevent jerking/snapping)
+                        glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+                }
+                else { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
+        }
 
         for (int j = 0; j < GLFW_JOYSTICK_LAST; j++) {
                 if (!glfwJoystickIsGamepad(j)) continue;
