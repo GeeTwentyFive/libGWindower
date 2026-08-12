@@ -97,7 +97,7 @@ bool GWindower::Update(
         if (_scrolled) { _scrolled = false; mouse_scroll_delta = 0.0; }  // prevent scroll data from "sticking"
 
         if (_last_mouse_lock_state != locked_mouse) { _last_mouse_lock_state = locked_mouse;
-                if (locked_mouse) { glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0);  // (to prevent jerking/snapping)
+                if (locked_mouse) { glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0); mouse_x = 0; mouse_y = 0;  // (to prevent jerking/snapping)
                         glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
                 }
                 else { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
