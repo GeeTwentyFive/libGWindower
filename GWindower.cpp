@@ -100,7 +100,7 @@ bool GWindower::Update(
                 if (locked_mouse) {
                         //glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0);  // (to prevent jerking/snapping)
                         glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-                        glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, -(this->window_height/4.0));  // (to prevent jerking/snapping)
+                        glfwSetCursorPos((GLFWwindow*)_glfwWindow, -(this->window_width/2.0), -(this->window_height/2.0));  // (to prevent jerking/snapping)
                 }
                 else { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
         }
