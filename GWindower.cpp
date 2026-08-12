@@ -99,7 +99,7 @@ bool GWindower::Update(
         if (_last_mouse_lock_state != locked_mouse) { _last_mouse_lock_state = locked_mouse;
                 if (locked_mouse) {
                         glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-                        //glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0);  // (to prevent jerking/snapping)
+                        glfwSetCursorPos((GLFWwindow*)_glfwWindow, this->window_width/2.0, this->window_height/2.0);  // (to prevent jerking/snapping)
                 }
                 else { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
         }
@@ -113,7 +113,7 @@ bool GWindower::Update(
         double xpos = 0, ypos = 0;
         glfwGetCursorPos((GLFWwindow*)_glfwWindow, &xpos, &ypos);
         this->mouse_x = (int)xpos; this->mouse_y = (int)ypos;
-        if (locked_mouse) { glfwSetCursorPos((GLFWwindow*)_glfwWindow, this->window_width/2.0, this->window_height/2.0); }  // so there is zero precision loss going from doubles to ints
+        if (locked_mouse) { glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0); }  // so there is zero precision loss going from doubles to ints
 
         for (int j = 0; j < GLFW_JOYSTICK_LAST; j++) {
                 if (!glfwJoystickIsGamepad(j)) continue;
