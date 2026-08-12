@@ -68,7 +68,11 @@ GWindower::GWindower(
         memset(gamepad_button_states, false, (sizeof(gamepad_button_states) / sizeof(gamepad_button_states[0])));
         memset(gamepad_axes, 0.0, (sizeof(gamepad_axes) / sizeof(gamepad_axes[0])));
 
-        if (fullscreen) {
+        if (fullscreen) locked_mouse = true;
+        else locked_mouse = false;
+        _last_mouse_lock_state = locked_mouse;
+
+        if (fullscreen) { ////
                 glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         }
@@ -96,6 +100,11 @@ bool GWindower::Update(
         if (opengl) { glfwSwapInterval(opengl_vsync); glfwSwapBuffers((GLFWwindow*)_glfwWindow); }
 
         if (_scrolled) { _scrolled = false; mouse_scroll_delta = 0.0; }  // prevent scroll data from "sticking"
+
+        if (_last_mouse_lock_state != locked_mouse) { _last_mouse_lock_state = locked_mouse;
+                if (locked_mouse) { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE); }
+                else { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
+        }
 
         if (sleep_until_input) {
                 if (sleep_until_input_timeout != 0.0) { glfwWaitEventsTimeout(sleep_until_input_timeout); }

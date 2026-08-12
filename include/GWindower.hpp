@@ -1,6 +1,6 @@
 #pragma once
 
-class GWindower { private: bool fullscreen; bool opengl; bool _scrolled = false; public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
+class GWindower { private: bool fullscreen; bool opengl; bool _scrolled = false; bool _last_mouse_lock_state; public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
         static int GetScreenWidth(); static int GetScreenHeight(); static int GetScreenRefreshRate();
 
         void* native_window_handle; // Win32 HWND / Wayland wl_surface*
@@ -11,7 +11,8 @@ class GWindower { private: bool fullscreen; bool opengl; bool _scrolled = false;
         );
 
         bool key_states[349];  // KEY_* - `true` = pressed
-        int mouse_x, mouse_y;  // delta in fullscreen, absolute in windowed
+        bool locked_mouse;  // lock/unlock mouse/cursor to window (default: `true` in fullscreen, `false` in windowed)
+        int mouse_x, mouse_y;  // delta when locked, absolute when not
         bool mouse_button_states[8];  // MOUSEBUTTON_* - `true` = pressed
         double mouse_scroll_delta;
         bool gamepad_button_states[15];  // GAMEPADBUTTON_* - `true` = pressed
