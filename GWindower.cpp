@@ -98,7 +98,10 @@ bool GWindower::Update(
 
         if (_last_mouse_lock_state != locked_mouse) { _last_mouse_lock_state = locked_mouse;
                 if (locked_mouse) {
-                        glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+                        glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                        #ifdef _WIN32
+                                if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+                        #endif
                         glfwSetCursorPos((GLFWwindow*)_glfwWindow, -(this->window_width/2.0), -(this->window_height/2.0));  // (to lessen jerking/snapping on transition from unlocked to locked)
                 }
                 else { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
