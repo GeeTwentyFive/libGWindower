@@ -43,7 +43,7 @@ GWindower::GWindower(
 
         const GLFWvidmode* video_mode = glfwGetVideoMode(monitor); if (video_mode == NULL) ERROR("Failed to get primary monitor's video mode");
 
-        glfwWindowHint(GLFW_RED_BITS, video_mode->redBits); glfwWindowHint(GLFW_GREEN_BITS, video_mode->greenBits); glfwWindowHint(GLFW_BLUE_BITS, video_mode->blueBits); glfwWindowHint(GLFW_REFRESH_RATE, video_mode->refreshRate);
+        glfwWindowHint(GLFW_RED_BITS, video_mode->redBits); glfwWindowHint(GLFW_GREEN_BITS, video_mode->greenBits); glfwWindowHint(GLFW_BLUE_BITS, video_mode->blueBits); glfwWindowHint(GLFW_REFRESH_RATE, video_mode->refreshRate); glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
         if (opengl) { glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API); glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, opengl_context_major); glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_context_minor); glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); }
         else { glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); }
         if (fullscreen) { _glfwWindow = glfwCreateWindow(video_mode->width, video_mode->height, "", monitor, NULL); }
