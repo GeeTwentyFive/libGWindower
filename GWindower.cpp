@@ -70,7 +70,7 @@ GWindower::GWindower(
 
         if (fullscreen) locked_mouse = true;
         else locked_mouse = false;
-        _last_mouse_lock_state = locked_mouse;
+        _last_mouse_lock_state = !locked_mouse;
 
         glfwSetKeyCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods){
                 ((GWindower*)glfwGetWindowUserPointer(window))->key_states[key] = (action != GLFW_RELEASE);
