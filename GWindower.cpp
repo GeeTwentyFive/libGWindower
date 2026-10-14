@@ -34,20 +34,20 @@ GWindower::GWindower(
         int window_width, int window_height,
         int opengl_context_major, int opengl_context_minor
 ) {
-        fullscreen = (window_width == 0);
-        opengl = (opengl_context_major != 0);
-
         if (!glfwInit()) ERROR("Failed to initialize GLFW");
 
         GLFWmonitor* monitor = glfwGetPrimaryMonitor(); if (monitor == NULL) ERROR("Failed to get primary monitor");
 
         const GLFWvidmode* video_mode = glfwGetVideoMode(monitor); if (video_mode == NULL) ERROR("Failed to get primary monitor's video mode");
 
+        opengl = (opengl_context_major != 0);
+        const bool fullscreen = (window_width == 0);
+
         glfwWindowHint(GLFW_RED_BITS, video_mode->redBits); glfwWindowHint(GLFW_GREEN_BITS, video_mode->greenBits); glfwWindowHint(GLFW_BLUE_BITS, video_mode->blueBits); glfwWindowHint(GLFW_REFRESH_RATE, video_mode->refreshRate); glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
         if (opengl) { glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API); glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, opengl_context_major); glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, opengl_context_minor); glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); }
-        else { glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); }
-        if (fullscreen) { _glfwWindow = glfwCreateWindow(video_mode->width, video_mode->height, "", monitor, NULL); }
-        else { _glfwWindow = glfwCreateWindow(window_width, window_height, "", NULL, NULL); }
+        else glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        if (fullscreen) _glfwWindow = glfwCreateWindow(video_mode->width, video_mode->height, "", monitor, NULL);
+        else _glfwWindow = glfwCreateWindow(window_width, window_height, "", NULL, NULL);
         if (_glfwWindow == NULL) ERROR(std::string("Failed to create window") + " (GLFW error code: " + std::to_string(glfwGetError(NULL)) + ")");
 
         glfwSetWindowUserPointer((GLFWwindow*)_glfwWindow, this);
@@ -59,7 +59,7 @@ GWindower::GWindower(
                 this->native_wayland_display = (void*)glfwGetWaylandDisplay(); if (this->native_wayland_display == NULL) ERROR("Failed to get native wl_display*");
         #endif
 
-        if (opengl) { glfwMakeContextCurrent((GLFWwindow*)_glfwWindow); }
+        if (opengl) glfwMakeContextCurrent((GLFWwindow*)_glfwWindow);
 
         memset(key_states, false, (sizeof(key_states) / sizeof(key_states[0])));
         mouse_x = 0; mouse_y = 0;
@@ -70,7 +70,7 @@ GWindower::GWindower(
 
         if (fullscreen) locked_mouse = true;
         else locked_mouse = false;
-        _last_mouse_lock_state = !locked_mouse;
+        _last_mouse_lock_state = locked_mouse;
 
         glfwSetKeyCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods){
                 ((GWindower*)glfwGetWindowUserPointer(window))->key_states[key] = (action != GLFW_RELEASE);
@@ -96,24 +96,29 @@ bool GWindower::Update(
 
         if (_scrolled) { _scrolled = false; mouse_scroll_delta = 0.0; }  // prevent scroll data from "sticking"
 
-        if (_last_mouse_lock_state != locked_mouse) { _last_mouse_lock_state = locked_mouse;
+        if (locked_mouse != _last_mouse_lock_state) {
                 if (locked_mouse) {
                         glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); if (glfwRawMouseMotionSupported()) glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-                        glfwSetCursorPos((GLFWwindow*)_glfwWindow, -(this->window_width/2.0), -(this->window_height/2.0));  // (to lessen jerking/snapping on transition from unlocked to locked)
+                        glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0);  // resets GLFW's internal virtual cursor pos to fix snapping when transitioning from normal cursor to disabled/locked
                 }
-                else { glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); }
+                else glfwSetInputMode((GLFWwindow*)_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
 
         if (sleep_until_input) {
-                if (sleep_until_input_timeout != 0.0) { glfwWaitEventsTimeout(sleep_until_input_timeout); }
-                else { glfwWaitEvents(); }
+                if (sleep_until_input_timeout != 0.0) glfwWaitEventsTimeout(sleep_until_input_timeout);
+                else glfwWaitEvents();
         }
-        else { glfwPollEvents(); }
+        else glfwPollEvents();
 
-        double xpos = 0, ypos = 0;
-        glfwGetCursorPos((GLFWwindow*)_glfwWindow, &xpos, &ypos);
-        this->mouse_x = (int)xpos; this->mouse_y = (int)ypos;
-        if (locked_mouse) { glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0); }  // so there is zero precision loss going from doubles to ints
+        if (locked_mouse && locked_mouse != _last_mouse_lock_state) { this->mouse_x = 0; this->mouse_y = 0; }  // on transition from normal cursor to disabled/locked cursor
+        else {
+                double xpos = 0, ypos = 0;
+                glfwGetCursorPos((GLFWwindow*)_glfwWindow, &xpos, &ypos);
+                this->mouse_x = (int)xpos; this->mouse_y = (int)ypos;
+                if (locked_mouse) glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0);  // so there is zero precision loss going from doubles to ints
+        }
+
+        if (_last_mouse_lock_state != locked_mouse) _last_mouse_lock_state = locked_mouse;
 
         for (int j = 0; j < GLFW_JOYSTICK_LAST; j++) {
                 if (!glfwJoystickIsGamepad(j)) continue;

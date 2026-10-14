@@ -1,6 +1,6 @@
 #pragma once
 
-class GWindower { private: bool fullscreen; bool opengl; bool _scrolled = false; bool _last_mouse_lock_state; public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
+class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse_lock_state; public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
         static int GetScreenWidth(); static int GetScreenHeight(); static int GetScreenRefreshRate();
 
         void* native_window_handle; // Win32 HWND / Wayland wl_surface*
