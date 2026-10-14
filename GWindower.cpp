@@ -129,7 +129,9 @@ bool GWindower::Update(
                 break;
         }
 
-        return !glfwWindowShouldClose((GLFWwindow*)_glfwWindow);
+        int window_should_close = glfwWindowShouldClose((GLFWwindow*)_glfwWindow);
+        if (window_should_close) glfwSetWindowShouldClose((GLFWwindow*)_glfwWindow, 0);  // reset GLFW's internal window close flag so that it doesn't stick forever after the initial window close/X button press
+        return !window_should_close;
 }
 
 GWindower::~GWindower() { glfwTerminate(); }
