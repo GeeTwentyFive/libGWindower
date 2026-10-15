@@ -68,10 +68,6 @@ GWindower::GWindower(
         memset(gamepad_button_states, false, (sizeof(gamepad_button_states) / sizeof(gamepad_button_states[0])));
         memset(gamepad_axes, 0.0, (sizeof(gamepad_axes) / sizeof(gamepad_axes[0])));
 
-        if (fullscreen) locked_mouse = true;
-        else locked_mouse = false;
-        _last_mouse_lock_state = locked_mouse;
-
         glfwSetKeyCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods){
                 ((GWindower*)glfwGetWindowUserPointer(window))->key_states[key] = (action != GLFW_RELEASE);
         });
@@ -87,6 +83,7 @@ GWindower::GWindower(
 }
 
 bool GWindower::Update(
+        bool locked_mouse,
         bool sleep_until_input, double sleep_until_input_timeout,
         bool opengl_vsync
 ) noexcept {

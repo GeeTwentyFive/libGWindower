@@ -1,6 +1,6 @@
 #pragma once
 
-class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse_lock_state; public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
+class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse_lock_state = false; public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
         static int GetScreenWidth(); static int GetScreenHeight(); static int GetScreenRefreshRate();
 
         void* native_window_handle; // Win32 HWND / Wayland wl_surface*
@@ -11,7 +11,6 @@ class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse
         );
 
         bool key_states[349];  // KEY_* - `true` = pressed
-        bool locked_mouse;  // lock/unlock mouse/cursor to window (default: `true` in fullscreen, `false` in windowed)
         int mouse_x, mouse_y;  // delta when locked, absolute when not
         bool mouse_button_states[8];  // MOUSEBUTTON_* - `true` = pressed
         double mouse_scroll_delta;
@@ -19,6 +18,7 @@ class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse
         float gamepad_axes[6];  // GAMEPADAXIS_*
         int window_width, window_height;  // size of window's (non-decorated) drawing/framebuffer area
         bool Update(  // returns `false` if window should close
+                bool locked_mouse = false,  // lock/unlock mouse/cursor to window (+ sets raw input on locked)
                 bool sleep_until_input = false, double sleep_until_input_timeout = 0.0,
                 bool opengl_vsync = false
         ) noexcept;
