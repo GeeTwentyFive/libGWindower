@@ -10,11 +10,10 @@ class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse
                 int opengl_context_major = 0, int opengl_context_minor = 0  // leave both at 0 for no OpenGL context
         );
 
-        bool key_states[349];  // KEY_* - `true` = pressed
-        int mouse_x, mouse_y;  // delta when locked, absolute when not
-        bool mouse_button_states[8];  // MOUSEBUTTON_* - `true` = pressed
+        bool input_states[372]; bool last_input_states[372];
+        int cursor_x, cursor_y;
+        int mouse_x_delta, mouse_y_delta;
         double mouse_scroll_delta;
-        bool gamepad_button_states[15];  // GAMEPADBUTTON_* - `true` = pressed
         float gamepad_axes[6];  // GAMEPADAXIS_*
         int window_width, window_height;  // size of window's (non-decorated) drawing/framebuffer area
         bool Update(  // returns `false` if window should close
@@ -24,6 +23,7 @@ class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse
         ) noexcept;
 
         enum { // Inputs
+                // Keyboard
                 KEY_SPACE = 32,
                 KEY_APOSTROPHE = 39,  /* ' */
                 KEY_COMMA = 44,  /* , */
@@ -144,45 +144,49 @@ class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse
                 KEY_RIGHT_ALT = 346,
                 KEY_RIGHT_SUPER = 347,
                 KEY_MENU = 348,
-                KEY_LAST = KEY_MENU,  //
 
-                MOUSEBUTTON_LEFT = 0,
-                MOUSEBUTTON_RIGHT = 1,
-                MOUSEBUTTON_MIDDLE = 2,
-                MOUSEBUTTON_FOUR = 3,
-                MOUSEBUTTON_FIVE = 4,
-                MOUSEBUTTON_SIX = 5,
-                MOUSEBUTTON_SEVEN = 6,
-                MOUSEBUTTON_EIGHT = 7,
-                MOUSEBUTTON_LAST = MOUSEBUTTON_EIGHT,  //
+                // Mouse
+                MOUSEBUTTON_LEFT,
+                MOUSEBUTTON_RIGHT,
+                MOUSEBUTTON_MIDDLE,
+                MOUSEBUTTON_FOUR,
+                MOUSEBUTTON_FIVE,
+                MOUSEBUTTON_SIX,
+                MOUSEBUTTON_SEVEN,
+                MOUSEBUTTON_EIGHT,
 
-                GAMEPADBUTTON_A = 0,
-                GAMEPADBUTTON_B = 1,
-                GAMEPADBUTTON_X = 2,
-                GAMEPADBUTTON_Y = 3,
-                GAMEPADBUTTON_LEFT_BUMPER = 4,
-                GAMEPADBUTTON_RIGHT_BUMPER = 5,
-                GAMEPADBUTTON_BACK = 6,
-                GAMEPADBUTTON_START = 7,
-                GAMEPADBUTTON_GUIDE = 8,
-                GAMEPADBUTTON_LEFT_THUMB = 9,
-                GAMEPADBUTTON_RIGHT_THUMB = 10,
-                GAMEPADBUTTON_DPAD_UP = 11,
-                GAMEPADBUTTON_DPAD_RIGHT = 12,
-                GAMEPADBUTTON_DPAD_DOWN = 13,
-                GAMEPADBUTTON_DPAD_LEFT = 14,
-                GAMEPADBUTTON_LAST = GAMEPADBUTTON_DPAD_LEFT,  //
+                // Gamepad buttons
+                GAMEPADBUTTON_A,
+                GAMEPADBUTTON_B,
+                GAMEPADBUTTON_X,
+                GAMEPADBUTTON_Y,
+                GAMEPADBUTTON_LEFT_BUMPER,
+                GAMEPADBUTTON_RIGHT_BUMPER,
+                GAMEPADBUTTON_BACK,
+                GAMEPADBUTTON_START,
+                GAMEPADBUTTON_GUIDE,
+                GAMEPADBUTTON_LEFT_THUMB,
+                GAMEPADBUTTON_RIGHT_THUMB,
+                GAMEPADBUTTON_DPAD_UP,
+                GAMEPADBUTTON_DPAD_RIGHT,
+                GAMEPADBUTTON_DPAD_DOWN,
+                GAMEPADBUTTON_DPAD_LEFT,
+
+                _input_last,
+
+                // Aliases
+
                 GAMEPADBUTTON_CROSS = GAMEPADBUTTON_A,
                 GAMEPADBUTTON_CIRCLE = GAMEPADBUTTON_B,
                 GAMEPADBUTTON_SQUARE = GAMEPADBUTTON_X,
                 GAMEPADBUTTON_TRIANGLE = GAMEPADBUTTON_Y,
-
+        };
+        enum { // Gamepad axes
                 GAMEPADAXIS_LEFT_X,
                 GAMEPADAXIS_LEFT_Y,
                 GAMEPADAXIS_RIGHT_X,
                 GAMEPADAXIS_RIGHT_Y,
                 GAMEPADAXIS_LEFT_TRIGGER,
-                GAMEPADAXIS_RIGHT_TRIGGER,
-                GAMEPADAXIS_LAST = GAMEPADAXIS_RIGHT_TRIGGER  //
+                GAMEPADAXIS_RIGHT_TRIGGER
         };
 };

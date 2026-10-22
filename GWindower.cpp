@@ -61,19 +61,18 @@ GWindower::GWindower(
 
         if (opengl) glfwMakeContextCurrent((GLFWwindow*)_glfwWindow);
 
-        memset(key_states, false, (sizeof(key_states) / sizeof(key_states[0])));
-        mouse_x = 0; mouse_y = 0;
-        memset(mouse_button_states, false, (sizeof(mouse_button_states) / sizeof(mouse_button_states[0])));
+        memset(input_states, false, (sizeof(input_states) / sizeof(input_states[0]))); memset(last_input_states, false, (sizeof(last_input_states) / sizeof(last_input_states[0])));
+        cursor_x = 0; cursor_y = 0;
+        mouse_x_delta = 0; mouse_y_delta = 0;
         mouse_scroll_delta = 0.0;
-        memset(gamepad_button_states, false, (sizeof(gamepad_button_states) / sizeof(gamepad_button_states[0])));
         memset(gamepad_axes, 0.0, (sizeof(gamepad_axes) / sizeof(gamepad_axes[0])));
 
         glfwSetKeyCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods){
-                ((GWindower*)glfwGetWindowUserPointer(window))->key_states[key] = (action != GLFW_RELEASE);
+                ((GWindower*)glfwGetWindowUserPointer(window))->input_states[key] = (action != GLFW_RELEASE);
         });
 
         glfwSetMouseButtonCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, int button, int action, int mods){
-                ((GWindower*)glfwGetWindowUserPointer(window))->mouse_button_states[button] = (action != GLFW_RELEASE);
+                ((GWindower*)glfwGetWindowUserPointer(window))->input_states[button+GWindower::MOUSEBUTTON_LEFT] = (action != GLFW_RELEASE);
         });
 
         glfwSetScrollCallback((GLFWwindow*)_glfwWindow, [](GLFWwindow* window, double xoffset, double yoffset){
@@ -87,6 +86,8 @@ bool GWindower::Update(
         bool sleep_until_input, double sleep_until_input_timeout,
         bool opengl_vsync
 ) noexcept {
+        memcpy(last_input_states, input_states, sizeof(input_states));
+
         glfwGetFramebufferSize((GLFWwindow*)_glfwWindow, &window_width, &window_height);
 
         if (opengl) { glfwSwapInterval(opengl_vsync); glfwSwapBuffers((GLFWwindow*)_glfwWindow); }
@@ -107,13 +108,16 @@ bool GWindower::Update(
         }
         else glfwPollEvents();
 
-        if (locked_mouse && locked_mouse != _last_mouse_lock_state) { this->mouse_x = 0; this->mouse_y = 0; }  // on transition from normal cursor to disabled/locked cursor
-        else {
-                double xpos = 0, ypos = 0;
-                glfwGetCursorPos((GLFWwindow*)_glfwWindow, &xpos, &ypos);
-                this->mouse_x = (int)xpos; this->mouse_y = (int)ypos;
-                if (locked_mouse) glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0);  // so there is zero precision loss going from doubles to ints
+        double xpos = 0, ypos = 0;
+        glfwGetCursorPos((GLFWwindow*)_glfwWindow, &xpos, &ypos);
+        if (locked_mouse) {
+                this->mouse_x_delta = (int)xpos; this->mouse_y_delta = (int)ypos;
+                glfwSetCursorPos((GLFWwindow*)_glfwWindow, 0.0, 0.0);  // so there is zero precision loss going from doubles to ints
+        } else {
+                this->mouse_x_delta = (int)xpos - this->cursor_x; this->mouse_y_delta = (int)ypos - this->cursor_y;
+                this->cursor_x = (int)xpos; this->cursor_y = (int)ypos;
         }
+        if (locked_mouse != _last_mouse_lock_state) { this->mouse_x_delta = 0; this->mouse_y_delta = 0; }
 
         if (_last_mouse_lock_state != locked_mouse) _last_mouse_lock_state = locked_mouse;
 
@@ -121,7 +125,7 @@ bool GWindower::Update(
                 if (!glfwJoystickIsGamepad(j)) continue;
                 GLFWgamepadstate gamepad_state;
                 if (!glfwGetGamepadState(j, &gamepad_state)) continue;
-                for (int b = 0; b < GLFW_GAMEPAD_BUTTON_LAST; b++) { gamepad_button_states[b] = (gamepad_state.buttons[b] != GLFW_RELEASE); }
+                for (int b = 0; b < GLFW_GAMEPAD_BUTTON_LAST; b++) { input_states[b+GWindower::GAMEPADBUTTON_A] = (gamepad_state.buttons[b] != GLFW_RELEASE); }
                 for (int a = 0; a < GLFW_GAMEPAD_AXIS_LAST; a++) { gamepad_axes[a] = gamepad_state.axes[a]; }
                 break;
         }
