@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _LIBGWINDOWER_H
+#define _LIBGWINDOWER_H
 
 class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse_lock_state = false; public: ~GWindower(); void* _glfwWindow;  // for interoperability (e.g. Dear ImGui's GLFW backend)
         static int GetScreenWidth(); static int GetScreenHeight(); static int GetScreenRefreshRate();
@@ -190,3 +191,5 @@ class GWindower { private: bool opengl; bool _scrolled = false; bool _last_mouse
                 GAMEPADAXIS_RIGHT_TRIGGER
         };
 };
+
+#endif // _LIBGWINDOWER_H
